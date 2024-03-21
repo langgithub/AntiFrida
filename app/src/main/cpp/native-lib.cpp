@@ -16,6 +16,9 @@
 #include <sys/system_properties.h>
 #include <asm/unistd.h>
 #include <android/log.h>
+#include <linux/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #include "mylibc.h"
 #include "raw_syscall.h"
@@ -193,6 +196,46 @@ static inline bool fetch_checksum_of_library(const char *filePath, execSection *
 }
 
 
+void detect_frida_bus_loop() {
+    struct sockaddr_in sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sin_family = AF_INET;
+    inet_aton("0.0.0.0", &(sa.sin_addr));
+    int sock;
+    int i;
+    int ret;
+    char res[7];
+    while(1){
+        /*
+         * 1:Frida Server Detection
+         */
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"entering frida server detect loop started");
+        for(i=20000;i<30000;i++){
+            sock = socket(AF_INET,SOCK_STREAM,0);
+            sa.sin_port = htons(i);
+//            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "entering frida server detect loop started,now i is %d",i);
+
+            if (connect(sock , (struct sockaddr*)&sa , sizeof sa) != -1) {
+                memset(res, 0 , 7);
+                send(sock, "\x00", 1, NULL);
+                send(sock, "AUTH\r\n", 6, NULL);
+                usleep(500); // Give it some time to answer
+                if ((ret = recv(sock, res, 6, MSG_DONTWAIT)) != -1) {
+                    if (strcmp(res, "REJECT") == 0) {
+                        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "FOUND FRIDA SERVER: %s,FRIDA DETECTED [1] - frida server running on port %d!",APPNAME,i);
+                    }else{
+                        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "not FOUND FRIDA SERVER");
+                    }
+                }
+            }
+            close(sock);
+        }
+        break;
+    }
+}
+
+
+
 void detect_frida_loop(void *pargs) {
 
     struct timespec timereq;
@@ -201,6 +244,7 @@ void detect_frida_loop(void *pargs) {
 
     while (1) {
 
+        // detect_frida_bus_loop();  相当于链接frida-server, 不如直接链接端口，发送的auth协议请求可能有变化
         detect_frida_threads();
         detect_frida_namedpipe();
         detect_frida_memdiskcompare();

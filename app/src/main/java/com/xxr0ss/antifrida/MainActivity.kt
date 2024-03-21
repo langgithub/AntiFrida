@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
             val useMySyscalls = binding.switchUseMySyscalls.isChecked
             // not all signatures here exist in the latest frida modules
             // if you find any signature that works, just put it here
-            val blockList = listOf("frida:rpc", "LIBFRIDA")
+            val blockList = listOf("frida")
             var detected = false;
             blockList.forEach {
                 detected = AntiFridaUtil.scanModulesForSignature(it, useMySyscalls)

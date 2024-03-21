@@ -123,7 +123,7 @@
 
 
 
-#define TAG "Zhenxi"
+#define TAG "JNI"
 #define LOG(severity) LOG_ ## severity.stream()
 
 

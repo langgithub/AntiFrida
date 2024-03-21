@@ -251,11 +251,12 @@ Java_com_xxr0ss_antifrida_utils_AntiFridaUtil_scanModulesForSignature(JNIEnv *en
         if (wrap_endsWith(path, ".oat")) continue;
         if (elf_check_header(base) != 1) continue;
 
+        __android_log_print(ANDROID_LOG_INFO, TAG,"find_mem_string %s", path);
         if (find_mem_string(base, end, (unsigned char *) sig, sig_len) == 1) {
             __android_log_print(ANDROID_LOG_INFO, TAG,
                                 "frida signature \"%s\" found in %lx - %lx", sig, base, end);
             result = JNI_TRUE;
-            break;
+//            break;
         }
     }
 
