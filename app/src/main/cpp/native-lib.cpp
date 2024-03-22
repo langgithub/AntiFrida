@@ -70,6 +70,7 @@ static inline void parse_proc_maps_to_fetch_path(char **filepaths);
 static inline bool fetch_checksum_of_library(const char *filePath, execSection **pTextSection);
 
 static inline void detect_frida_loop(void *pargs);
+static inline void detect_frida_loop_test();
 
 static inline bool
 scan_executable_segments(char *map, execSection *pTextSection, const char *libraryName);
@@ -97,7 +98,13 @@ JNIEXPORT jboolean Java_com_xxr0ss_antifrida_utils_AntiFrida2_checkBeingDebugged
             free(filePaths[i]);
     }
     pthread_t t;
-    pthread_create(&t, NULL, reinterpret_cast<void *(*)(void *)>(detect_frida_loop), NULL);
+    int status = pthread_create(&t, NULL, reinterpret_cast<void *(*)(void *)>(detect_frida_loop), NULL);
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"pthread_create %d", status);
+
+
+    pthread_t t2;
+    int status2 = pthread_create(&t2, NULL, reinterpret_cast<void *(*)(void *)>(detect_frida_loop_test), NULL);
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME,"pthread_create %d", status2);
     return 1;
 }
 
@@ -234,6 +241,15 @@ void detect_frida_bus_loop() {
     }
 }
 
+void detect_frida_loop_test() {
+    struct timespec timereq;
+    timereq.tv_sec = 5; //Changing to 5 seconds from 1 second
+    timereq.tv_nsec = 0;
+    while (1){
+        __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "detect_frida_loop_test");
+        my_nanosleep(&timereq, NULL);
+    }
+}
 
 
 void detect_frida_loop(void *pargs) {
