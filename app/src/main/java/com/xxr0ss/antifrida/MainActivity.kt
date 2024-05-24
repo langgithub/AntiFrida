@@ -19,6 +19,8 @@ import com.xxr0ss.antifrida.databinding.ActivityMainBinding
 import com.xxr0ss.antifrida.utils.AntiFrida2
 import com.xxr0ss.antifrida.utils.AntiFridaUtil
 import com.xxr0ss.antifrida.utils.ReadVia
+//import com.xxr0ss.antifrida.utils.AntiFridaUtil
+//import com.xxr0ss.antifrida.utils.ReadVia
 import com.xxr0ss.antifrida.utils.SuperUser
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -131,11 +133,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnCheckBeingDebugged.setOnClickListener {
-            val useMySyscalls = binding.switchUseMySyscalls.isChecked
-            Toast.makeText(
-                this, if (AntiFridaUtil.checkBeingDebugged(useMySyscalls))
-                    "Being debugged" else "Not being debugged", Toast.LENGTH_SHORT
-            ).show()
+            AntiFrida2().checkBeingDebugged()
+//            val useMySyscalls = binding.switchUseMySyscalls.isChecked
+//            Toast.makeText(
+//                this, if (AntiFridaUtil.checkBeingDebugged(useMySyscalls))
+//                    "Being debugged" else "Not being debugged", Toast.LENGTH_SHORT
+//            ).show()
         }
 
         binding.btnCheckPmap.setOnClickListener {
